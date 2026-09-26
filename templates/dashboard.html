@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Diary</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+
+            <div class="sidebar-brand-icon">
+                <i class="bi bi-stars"></i>
+            </div>
+
+            <div>
+                <h2>My Diary</h2>
+            </div>
+
+        </div>
+
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-item active"
+                data-page="home"
+                type="button"
+            >
+                <span class="nav-icon">
+                    <i class="bi bi-house"></i>
+                </span>
+
+                <span>Home</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="folders"
+                type="button"
+            >
+                <span class="nav-icon">
+                    <i class="bi bi-folder2"></i>
+                </span>
+
+                <span>Folders</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="favorites"
+                type="button"
+            >
+                <span class="nav-icon">
+                    <i class="bi bi-star"></i>
+                </span>
+
+                <span>Favorites</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="trash"
+                type="button"
+            >
+                <span class="nav-icon">
+                    <i class="bi bi-trash3"></i>
+                </span>
+
+                <span>Trash</span>
+            </button>
+
+        </nav>
+
+
+        <!-- Sidebar Bottom -->
+        <div class="sidebar-bottom">
+
+            <!-- Storage -->
+            <div class="storage-card">
+
+                <div class="storage-card-title">
+
+                    <i class="bi bi-google"></i>
+
+                    <span>Cloud Storage</span>
+
+                </div>
+
+                <p>
+                    Google Drive
+                </p>
+
+                <p style="margin-top: 4px;">
+                    Ready for your memories
+                </p>
+
+            </div>
+
+
+            <!-- Logout -->
+            <a
+                href="{{ url_for('logout') }}"
+                class="logout-btn"
+            >
+                <i class="bi bi-box-arrow-left me-2"></i>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <header class="topbar">
+
+
+            <!-- Left -->
+            <div class="topbar-left">
+
+                <!-- Mobile menu -->
+                <button
+                    class="menu-toggle"
+                    id="menuToggle"
+                    type="button"
+                    aria-label="Open menu"
+                >
+                    <i class="bi bi-list"></i>
+                </button>
+
+
+                <!-- Page heading -->
+                <div class="page-heading">
+
+                    <h1 id="pageTitle">
+                        My Diary
+                    </h1>
+
+                    <p id="pageSubtitle">
+                        Your memories, all in one place.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Right -->
+            <div class="topbar-actions">
+
+
+                <!-- Search -->
+                <div class="search-wrapper">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search memories..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        class="clear-search"
+                        id="clearSearch"
+                    >
+                        <i class="bi bi-x"></i>
+                    </button>
+
+                </div>
+
+
+                <!-- Theme -->
+                <button
+                    class="icon-btn"
+                    id="themeToggle"
+                    type="button"
+                    title="Change theme"
+                    aria-label="Change theme"
+                >
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             HOME PAGE
+             ================================================= -->
+
+        <section
+            class="page-section active"
+            id="homePage"
+        >
+
+
+            <!-- Welcome -->
+            <div class="welcome-card">
+
+                <h2>
+                    Good evening, Lavanya 👋
+                </h2>
+
+                <p>
+                    Keep your favorite moments,
+                    thoughts and memories safe in one place.
+                </p>
+
+            </div>
+
+
+
+            <!-- Folders -->
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Your Folders
+                    </h2>
+
+                    <p>
+                        Organize your memories your way.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="secondary-btn"
+                    id="newFolderBtn"
+                    type="button"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>
+                    New Folder
+                </button>
+
+            </div>
+
+
+            <div
+                class="folder-grid"
+                id="folderGrid"
+            >
+                <!-- JS inserts folders -->
+            </div>
+
+
+
+            <!-- Recent Memories -->
+            <div
+                class="section-header"
+                style="margin-top: 35px;"
+            >
+
+                <div>
+
+                    <h2>
+                        Recent Memories
+                    </h2>
+
+                    <p>
+                        Your latest entries.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="recent-memory-grid"
+                id="recentMemoryGrid"
+            >
+                <!-- JS inserts memories -->
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             FOLDERS PAGE
+             ================================================= -->
+
+        <section
+            class="page-section"
+            id="foldersPage"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        All Folders
+                    </h2>
+
+                    <p>
+                        Browse and manage your memory folders.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="primary-btn"
+                    id="newFolderBtn2"
+                    type="button"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>
+                    New Folder
+                </button>
+
+            </div>
+
+
+            <div
+                class="folder-grid"
+                id="allFolderGrid"
+            >
+                <!-- JS inserts folders -->
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             FAVORITES PAGE
+             ================================================= -->
+
+        <section
+            class="page-section"
+            id="favoritesPage"
+        >
+
+            <div class="favorite-header">
+
+                <h2>
+                    Favorites ⭐
+                </h2>
+
+                <p>
+                    Memories you've marked as important.
+                </p>
+
+            </div>
+
+
+            <div
+                class="memory-grid"
+                id="favoriteMemoryGrid"
+            >
+                <!-- JS inserts favorite memories -->
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             TRASH PAGE
+             ================================================= -->
+
+        <section
+            class="page-section"
+            id="trashPage"
+        >
+
+            <div class="trash-header">
+
+                <div>
+
+                    <h2>
+                        Trash
+                    </h2>
+
+                    <p style="color: var(--muted); font-size: 13px;">
+                        Deleted memories stay here until permanently removed.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="danger-btn"
+                    id="emptyTrashBtn"
+                    type="button"
+                >
+                    <i class="bi bi-trash3 me-1"></i>
+                    Empty Trash
+                </button>
+
+            </div>
+
+
+            <div class="trash-warning">
+
+                <i class="bi bi-exclamation-triangle me-2"></i>
+
+                Items permanently deleted from trash
+                cannot be recovered.
+
+            </div>
+
+
+            <div
+                class="memory-grid"
+                id="trashMemoryGrid"
+            >
+                <!-- JS inserts trash -->
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SINGLE FOLDER PAGE
+             ================================================= -->
+
+        <section
+            class="page-section"
+            id="folderPage"
+        >
+
+
+            <div class="folder-header">
+
+
+                <div class="folder-header-left">
+
+                    <button
+                        class="back-btn"
+                        id="backToFolders"
+                        type="button"
+                        title="Back"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+
+
+                    <div>
+
+                        <h2 id="currentFolderName">
+                            Folder
+                        </h2>
+
+                        <p>
+                            Memories inside this folder.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="folder-header-right">
+
+                    <button
+                        class="primary-btn"
+                        id="addMemoryBtn"
+                        type="button"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Memory
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Filters -->
+            <div class="filter-buttons">
+
+                <button
+                    class="filter-btn active"
+                    data-filter="all"
+                    type="button"
+                >
+                    All
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="text"
+                    type="button"
+                >
+                    <i class="bi bi-file-text me-1"></i>
+                    Notes
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="photo"
+                    type="button"
+                >
+                    <i class="bi bi-image me-1"></i>
+                    Photos
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="video"
+                    type="button"
+                >
+                    <i class="bi bi-camera-video me-1"></i>
+                    Videos
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="voice"
+                    type="button"
+                >
+                    <i class="bi bi-mic me-1"></i>
+                    Voice
+                </button>
+
+            </div>
+
+
+
+            <div
+                class="memory-grid"
+                id="folderMemoryGrid"
+            >
+                <!-- JS inserts folder memories -->
+            </div>
+
+        </section>
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =======================================================
+     FLOATING ADD BUTTON
+     ======================================================= -->
+
+<button
+    class="floating-add"
+    id="floatingAdd"
+    type="button"
+    title="Add memory"
+    aria-label="Add memory"
+>
+    <i class="bi bi-plus-lg"></i>
+</button>
+
+
+
+<!-- =======================================================
+     NEW FOLDER MODAL
+     ======================================================= -->
+
+<div
+    class="modal-overlay"
+    id="folderModal"
+>
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Create Folder
+            </h2>
+
+            <button
+                class="modal-close"
+                data-close="folderModal"
+                type="button"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="form-group">
+
+                <label for="folderNameInput">
+                    Folder name
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="folderNameInput"
+                    placeholder="e.g. Travel, College, Personal..."
+                    maxlength="100"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary-btn"
+                data-close="folderModal"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary-btn"
+                id="createFolderBtn"
+                type="button"
+            >
+                Create Folder
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     MEMORY TYPE MODAL
+     ======================================================= -->
+
+<div
+    class="modal-overlay"
+    id="memoryTypeModal"
+>
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Add a Memory
+            </h2>
+
+            <button
+                class="modal-close"
+                data-close="memoryTypeModal"
+                type="button"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <p style="color: var(--muted); margin-bottom: 18px;">
+                What would you like to save?
+            </p>
+
+
+            <div class="memory-type-grid">
+
+
+                <!-- Note -->
+                <button
+                    class="memory-type-card"
+                    data-type="text"
+                    type="button"
+                >
+
+                    <span class="type-icon">
+                        <i class="bi bi-file-text"></i>
+                    </span>
+
+                    <strong>
+                        Note
+                    </strong>
+
+                    <span>
+                        Write something
+                    </span>
+
+                </button>
+
+
+                <!-- Photo -->
+                <button
+                    class="memory-type-card"
+                    data-type="photo"
+                    type="button"
+                >
+
+                    <span class="type-icon">
+                        <i class="bi bi-image"></i>
+                    </span>
+
+                    <strong>
+                        Photo
+                    </strong>
+
+                    <span>
+                        Save an image
+                    </span>
+
+                </button>
+
+
+                <!-- Video -->
+                <button
+                    class="memory-type-card"
+                    data-type="video"
+                    type="button"
+                >
+
+                    <span class="type-icon">
+                        <i class="bi bi-camera-video"></i>
+                    </span>
+
+                    <strong>
+                        Video
+                    </strong>
+
+                    <span>
+                        Save a video
+                    </span>
+
+                </button>
+
+
+                <!-- Voice -->
+                <button
+                    class="memory-type-card"
+                    data-type="voice"
+                    type="button"
+                >
+
+                    <span class="type-icon">
+                        <i class="bi bi-mic"></i>
+                    </span>
+
+                    <strong>
+                        Voice
+                    </strong>
+
+                    <span>
+                        Save a recording
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     TEXT EDITOR MODAL
+     ======================================================= -->
+
+<div
+    class="modal-overlay"
+    id="editorModal"
+>
+
+    <div
+        class="modal"
+        style="max-width: 850px;"
+    >
+
+
+        <div class="modal-header">
+
+            <h2>
+                Write Memory
+            </h2>
+
+            <button
+                class="modal-close"
+                data-close="editorModal"
+                type="button"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+
+            <!-- Title -->
+            <div class="form-group">
+
+                <label for="memoryTitleInput">
+                    Title
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="memoryTitleInput"
+                    placeholder="Give your memory a title..."
+                    maxlength="255"
+                >
+
+            </div>
+
+
+
+            <!-- Editor Toolbar -->
+            <div class="editor-toolbar">
+
+
+                <!-- Bold -->
+                <button
+                    class="editor-btn"
+                    data-command="bold"
+                    type="button"
+                    title="Bold"
+                >
+                    <strong>B</strong>
+                </button>
+
+
+                <!-- Italic -->
+                <button
+                    class="editor-btn"
+                    data-command="italic"
+                    type="button"
+                    title="Italic"
+                >
+                    <em>I</em>
+                </button>
+
+
+                <!-- Underline -->
+                <button
+                    class="editor-btn"
+                    data-command="underline"
+                    type="button"
+                    title="Underline"
+                >
+                    <u>U</u>
+                </button>
+
+
+                <!-- Strike -->
+                <button
+                    class="editor-btn"
+                    data-command="strikeThrough"
+                    type="button"
+                    title="Strikethrough"
+                >
+                    <s>S</s>
+                </button>
+
+
+                <!-- Separator -->
+                <span style="
+                    width:1px;
+                    height:22px;
+                    background:var(--border);
+                    margin:0 3px;
+                "></span>
+
+
+                <!-- Font -->
+                <select
+                    id="fontFamily"
+                    title="Font"
+                >
+
+                    <option value="Arial">
+                        Arial
+                    </option>
+
+                    <option value="Georgia">
+                        Georgia
+                    </option>
+
+                    <option value="Verdana">
+                        Verdana
+                    </option>
+
+                    <option value="Tahoma">
+                        Tahoma
+                    </option>
+
+                    <option value="Times New Roman">
+                        Times New Roman
+                    </option>
+
+                    <option value="Courier New">
+                        Courier New
+                    </option>
+
+                </select>
+
+
+                <!-- Font size -->
+                <select
+                    id="fontSize"
+                    title="Font size"
+                >
+
+                    <option value="2">
+                        Small
+                    </option>
+
+                    <option value="3" selected>
+                        Normal
+                    </option>
+
+                    <option value="4">
+                        Large
+                    </option>
+
+                    <option value="5">
+                        X-Large
+                    </option>
+
+                    <option value="6">
+                        Huge
+                    </option>
+
+                </select>
+
+
+                <!-- Separator -->
+                <span style="
+                    width:1px;
+                    height:22px;
+                    background:var(--border);
+                    margin:0 3px;
+                "></span>
+
+
+                <!-- Text color -->
+                <label
+                    title="Text color"
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:4px;
+                        cursor:pointer;
+                    "
+                >
+
+                    <i class="bi bi-type"></i>
+
+                    <input
+                        type="color"
+                        id="textColor"
+                        value="#f5f5f7"
+                    >
+
+                </label>
+
+
+                <!-- Highlight -->
+                <label
+                    title="Highlight color"
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:4px;
+                        cursor:pointer;
+                    "
+                >
+
+                    <i class="bi bi-highlighter"></i>
+
+                    <input
+                        type="color"
+                        id="highlightColor"
+                        value="#fff176"
+                    >
+
+                </label>
+
+
+                <!-- Alignment -->
+                <button
+                    class="editor-btn"
+                    data-command="justifyLeft"
+                    type="button"
+                    title="Align left"
+                >
+                    <i class="bi bi-text-left"></i>
+                </button>
+
+
+                <button
+                    class="editor-btn"
+                    data-command="justifyCenter"
+                    type="button"
+                    title="Center"
+                >
+                    <i class="bi bi-text-center"></i>
+                </button>
+
+
+                <button
+                    class="editor-btn"
+                    data-command="justifyRight"
+                    type="button"
+                    title="Align right"
+                >
+                    <i class="bi bi-text-right"></i>
+                </button>
+
+
+                <!-- Lists -->
+                <button
+                    class="editor-btn"
+                    data-command="insertUnorderedList"
+                    type="button"
+                    title="Bullet list"
+                >
+                    <i class="bi bi-list-ul"></i>
+                </button>
+
+
+                <button
+                    class="editor-btn"
+                    data-command="insertOrderedList"
+                    type="button"
+                    title="Numbered list"
+                >
+                    <i class="bi bi-list-ol"></i>
+                </button>
+
+
+            </div>
+
+
+
+            <!-- Rich editor -->
+            <div
+                class="rich-text-editor"
+                id="richTextEditor"
+                contenteditable="true"
+                spellcheck="true"
+            ></div>
+
+
+            <!-- Word count -->
+            <div class="editor-footer">
+
+                <span id="wordCount">
+                    0 words
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary-btn"
+                data-close="editorModal"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary-btn"
+                id="saveTextMemory"
+                type="button"
+            >
+                <i class="bi bi-check-lg me-1"></i>
+                Save Memory
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     MEDIA MODAL
+     ======================================================= -->
+
+<div
+    class="modal-overlay"
+    id="mediaModal"
+>
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+            ">
+
+                <div
+                    id="mediaModalIcon"
+                    style="
+                        width:40px;
+                        height:40px;
+                        border-radius:10px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        background:rgba(139,124,246,.12);
+                        color:var(--purple);
+                    "
+                >
+                    <i class="bi bi-file-earmark"></i>
+                </div>
+
+                <h2 id="mediaModalTitle">
+                    Upload Media
+                </h2>
+
+            </div>
+
+
+            <button
+                class="modal-close"
+                data-close="mediaModal"
+                type="button"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+
+            <!-- Title -->
+            <div class="form-group">
+
+                <label for="mediaTitleInput">
+                    Title
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="mediaTitleInput"
+                    placeholder="Give this memory a title..."
+                    maxlength="255"
+                >
+
+            </div>
+
+
+            <!-- File -->
+            <div class="form-group">
+
+                <label>
+                    Select file
+                </label>
+
+
+                <label
+                    class="file-upload-area"
+                    for="mediaFileInput"
+                >
+
+                    <span class="file-upload-icon">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </span>
+
+                    <strong>
+                        Choose a file
+                    </strong>
+
+                    <p>
+                        Your file will eventually be stored
+                        securely in Google Drive.
+                    </p>
+
+                    <span
+                        class="file-name"
+                        id="selectedFileName"
+                    >
+                        No file selected
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    id="mediaFileInput"
+                    hidden
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary-btn"
+                data-close="mediaModal"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary-btn"
+                id="saveMediaBtn"
+                type="button"
+            >
+                <i class="bi bi-cloud-arrow-up me-1"></i>
+                Save
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     TOAST
+     ======================================================= -->
+
+<div
+    class="toast"
+    id="toast"
+>
+    Done
+</div>
+
+
+
+<!-- =======================================================
+     OPTIONAL BACKDROP FOR MOBILE SIDEBAR
+     ======================================================= -->
+
+<div
+    id="sidebarBackdrop"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.55);
+        z-index:900;
+    "
+></div>
+
+
+
+<!-- =======================================================
+     JAVASCRIPT
+     ======================================================= -->
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+
+</body>
+</html>
