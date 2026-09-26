@@ -127,9 +127,22 @@
                     Google Drive
                 </p>
 
-                <p style="margin-top: 4px;">
-                    Ready for your memories
+                <p
+                    id="driveStatusText"
+                    style="margin-top: 4px;"
+                >
+                    Checking connection...
                 </p>
+
+                <button
+                    type="button"
+                    id="driveConnectBtn"
+                    class="secondary-btn"
+                    style="width:100%; margin-top:10px; display:none;"
+                >
+                    <i class="bi bi-google me-1"></i>
+                    Connect Google Drive
+                </button>
 
             </div>
 
@@ -1248,8 +1261,8 @@
                     </strong>
 
                     <p>
-                        Your file will eventually be stored
-                        securely in Google Drive.
+                        Your file is stored securely in your
+                        connected Google Drive.
                     </p>
 
                     <span
