@@ -1252,6 +1252,8 @@ a {
 }
 
 .modal {
+    display: block;   /* overrides Bootstrap's .modal { display: none } */
+
     width: 100%;
 
     max-width: 500px;
