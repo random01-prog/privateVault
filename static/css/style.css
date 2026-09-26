@@ -2167,3 +2167,32 @@ body,
         max-width: 90px;
     }
 }
+
+/* =========================================================
+   MOBILE POLISH
+   ========================================================= */
+
+html, body {
+    overflow-x: hidden; /* stops any stray element from causing sideways scroll */
+}
+
+.form-control,
+.form-select,
+.input-group-custom input,
+.search-wrapper input {
+    font-size: 16px; /* anything smaller makes iOS Safari auto-zoom in on focus */
+}
+
+@media (max-width: 768px) {
+    .favorite-btn,
+    .memory-menu-btn,
+    .folder-menu {
+        width: 34px;
+        height: 34px; /* easier to tap accurately than the default 30px */
+    }
+
+    .icon-btn,
+    .menu-toggle {
+        min-width: 44px; /* meets standard touch-target guidance */
+    }
+}

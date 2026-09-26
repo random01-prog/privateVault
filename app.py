@@ -207,7 +207,7 @@ def create_text_item():
     content = data.get("content") or ""
     plain_text = (data.get("plainText") or "").strip()
 
-    if not folder_id or not Folder.query.get(folder_id):
+    if not folder_id or not db.session.get(Folder, folder_id):
         return jsonify({"error": "A valid folder is required."}), 400
 
     if not plain_text:
@@ -274,7 +274,7 @@ def upload_media():
     title = request.form.get("title") or "Untitled"
     uploaded_file = request.files.get("file")
 
-    if not folder_id or not Folder.query.get(folder_id):
+    if not folder_id or not db.session.get(Folder, folder_id):
         return jsonify({"error": "A valid folder is required."}), 400
     if not uploaded_file:
         return jsonify({"error": "Please choose a file first."}), 400
@@ -342,8 +342,14 @@ def google_authorize():
         return "credentials.json is missing — see README.md.", 500
 
     redirect_uri = url_for("google_callback", _external=True)
-    auth_url, state = drive.build_authorization_url(redirect_uri)
+    auth_url, state, code_verifier = drive.build_authorization_url(redirect_uri)
+
+    # Both must survive the round trip to Google and back, so they're
+    # stashed in the session rather than kept on a local Flow object
+    # (which doesn't persist across the redirect).
     session["google_oauth_state"] = state
+    session["google_oauth_code_verifier"] = code_verifier
+
     return redirect(auth_url)
 
 
@@ -352,7 +358,14 @@ def google_authorize():
 def google_callback():
     redirect_uri = url_for("google_callback", _external=True)
     state = session.get("google_oauth_state")
-    drive.finish_authorization(request.url, redirect_uri, state)
+    code_verifier = session.get("google_oauth_code_verifier")
+
+    drive.finish_authorization(request.url, redirect_uri, state, code_verifier)
+
+    # Clean up now that the flow is done — nothing left to protect.
+    session.pop("google_oauth_state", None)
+    session.pop("google_oauth_code_verifier", None)
+
     return redirect(url_for("home"))
 
 

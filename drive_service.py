@@ -3,16 +3,25 @@ All Google Drive / OAuth logic lives here, isolated from app.py.
 
 Flow:
   1. GET /google/authorize  -> build_authorization_url() -> redirect user to Google
-  2. GET /google/callback   -> finish_authorization()    -> saves token.json
+  2. GET /google/callback   -> finish_authorization()    -> saves the token to Postgres
   3. Every upload/download/delete reuses the saved token, refreshing it
      automatically when it expires.
 
+The OAuth token itself is stored as a single row in the `google_tokens`
+table (see models.py) rather than a token.json file — most deploy hosts
+wipe local disk on every redeploy/restart, but a DB row survives.
+
+credentials.json (the OAuth *client secret*, not the user's token) still
+needs to exist on disk wherever this runs — on Render that's done via a
+Secret File, locally it just sits in the project root.
+
 All media files are stored inside a single Drive folder named
-"My Diary Vault" (created automatically the first time it's needed), owned
-by whichever Google account you connect.
+"Navya Tales Vault" (created automatically the first time it's needed),
+owned by whichever Google account you connect.
 """
 
 import io
+import json
 import os
 
 from google.oauth2.credentials import Credentials
@@ -21,10 +30,19 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 
+from models import GoogleToken, db
+
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
-TOKEN_FILE = os.getenv("GOOGLE_TOKEN_FILE", "token.json")
-VAULT_FOLDER_NAME = "My Diary Vault"
+VAULT_FOLDER_NAME = "Navya Tales Vault"
+
+# Legacy path: only used once, to migrate an existing local token.json (if
+# any) into the DB the first time this runs. Not written to going forward.
+LEGACY_TOKEN_FILE = os.getenv("GOOGLE_TOKEN_FILE", "token.json")
+
+# Fixed row id — this app connects a single shared Drive account, same as
+# the old single token.json file.
+TOKEN_ROW_ID = 1
 
 # Cached for the life of the process so we don't look it up on every request.
 _vault_folder_id_cache = None
@@ -36,10 +54,19 @@ def has_client_credentials():
 
 
 def _load_credentials():
-    if not os.path.exists(TOKEN_FILE):
+    token_row = db.session.get(GoogleToken, TOKEN_ROW_ID)
+
+    if not token_row and os.path.exists(LEGACY_TOKEN_FILE):
+        # One-time migration: reuse whatever's already connected locally so
+        # you don't have to redo the Google consent screen.
+        with open(LEGACY_TOKEN_FILE) as fh:
+            _save_credentials_json(fh.read())
+        token_row = db.session.get(GoogleToken, TOKEN_ROW_ID)
+
+    if not token_row:
         return None
 
-    creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+    creds = Credentials.from_authorized_user_info(json.loads(token_row.token_json), SCOPES)
 
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(GoogleRequest())
@@ -49,8 +76,19 @@ def _load_credentials():
 
 
 def _save_credentials(creds):
-    with open(TOKEN_FILE, "w") as fh:
-        fh.write(creds.to_json())
+    _save_credentials_json(creds.to_json())
+
+
+def _save_credentials_json(token_json):
+    token_row = db.session.get(GoogleToken, TOKEN_ROW_ID)
+
+    if token_row:
+        token_row.token_json = token_json
+    else:
+        token_row = GoogleToken(id=TOKEN_ROW_ID, token_json=token_json)
+        db.session.add(token_row)
+
+    db.session.commit()
 
 
 def is_connected():
@@ -59,6 +97,17 @@ def is_connected():
 
 
 def build_authorization_url(redirect_uri):
+    """
+    Starts the OAuth flow.
+
+    Returns (auth_url, state, code_verifier). All three must be handed back
+    to finish_authorization() later — Flow objects generate a fresh PKCE
+    code_verifier internally, and since the authorize step and the callback
+    step use two *separate* Flow instances (the app can't hold one in memory
+    across a redirect), the verifier has to be carried through explicitly
+    (e.g. stashed in the session) or Google will reject the token exchange
+    with "invalid_grant: Missing code verifier".
+    """
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE, scopes=SCOPES, redirect_uri=redirect_uri
     )
@@ -67,13 +116,22 @@ def build_authorization_url(redirect_uri):
         include_granted_scopes="true",
         prompt="consent",  # forces a refresh_token every time, useful while testing
     )
-    return auth_url, state
+    return auth_url, state, flow.code_verifier
 
 
-def finish_authorization(authorization_response_url, redirect_uri, state):
+def finish_authorization(authorization_response_url, redirect_uri, state, code_verifier):
+    """
+    Completes the OAuth flow.
+
+    code_verifier must be the exact value returned by build_authorization_url()
+    for this same login attempt (round-tripped via the session) — it's what
+    proves this token exchange belongs to the authorize request that started
+    it (PKCE).
+    """
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE, scopes=SCOPES, redirect_uri=redirect_uri, state=state
     )
+    flow.code_verifier = code_verifier
     flow.fetch_token(authorization_response=authorization_response_url)
     _save_credentials(flow.credentials)
 

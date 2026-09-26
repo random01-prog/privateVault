@@ -334,7 +334,7 @@ function updateHeader(page) {
     if (!title || !subtitle) return;
 
     if (page === "home") {
-        title.textContent = "Memory Vault";
+        title.textContent = "Navya Tales";
         subtitle.textContent = "Your personal space for memories.";
     } else if (page === "folders") {
         title.textContent = "My Folders";

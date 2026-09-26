@@ -1,9 +1,12 @@
 """
-Database models for My Diary.
+Database models for Navya Tales.
 
-Two tables:
-  - folders : the folders the user organizes memories into
-  - items   : every memory (text note, photo, video, voice recording)
+Three tables:
+  - folders      : the folders the user organizes memories into
+  - items        : every memory (text note, photo, video, voice recording)
+  - google_tokens: the single shared Google Drive OAuth token (replaces
+                   token.json — a file on disk doesn't survive redeploys
+                   on most hosts, a DB row does)
 
 Media bytes are NOT stored here — only `drive_file_id`, which points at the
 actual file living in the user's Google Drive. This table only holds the
@@ -59,3 +62,16 @@ class Item(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
     deleted_at = db.Column(db.DateTime, nullable=True)  # set when moved to Trash
+
+
+class GoogleToken(db.Model):
+    __tablename__ = "google_tokens"
+
+    # Only ever one row (id=1) — this app connects a single Drive account
+    # shared by both users, same as the old single token.json file.
+    id = db.Column(db.Integer, primary_key=True)
+    token_json = db.Column(db.Text, nullable=False)
+
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
